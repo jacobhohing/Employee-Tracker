@@ -9,4 +9,4 @@ This Project is designed to tracke employees and provide a list of functions to 
 
 
 ## App Demo
-![Project GIF](/Assets/trackerGiph.GIF)
+![Project GIF](/Assets/trackerGiph.gif)
