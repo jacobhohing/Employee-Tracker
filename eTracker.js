@@ -21,7 +21,7 @@ connection.connect( (err) => {
 
 function questions(){ 
     
-    connection.query("SELECT name FROM department", (err, results) => {
+    connection.query("SELECT name, id FROM department", (err, results) => {
         if(err) return console.error(err);
         departments = results;
     });
@@ -36,7 +36,7 @@ function questions(){
             type: "list",
             message: "What would you like to do?",
             name: "choice",
-            choices: ["Update Employee", "Add", "View", "Exit"]
+            choices: ["Update Employee", "Add User", "Add Role", "Add Department", "View Employees", "Exit"]
         }
     ])
     .then( answers => {
@@ -45,10 +45,16 @@ function questions(){
         if(choice === "Update Employee"){
             getEmployeeList();
         }
-        else if(choice === "Add"){
+        else if(choice === "Add User"){
             newUser();
         }
-        else if(choice === "View"){
+        else if(choice === "Add Role"){
+            newRole();
+        }
+        else if(choice === "Add Department"){
+            newDepartment();
+        }
+        else if(choice === "View Employees"){
             viewUsers();
         }
         else{
@@ -157,7 +163,66 @@ function viewUsers(){
         console.table(results)
         questions();
     });
+}
 
+function newRole(){
+    
+    departmentChoices = departments.map(dbData => {
+        return { name: dbData.name, value: dbData.id};
+    });
+    
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "title",
+            message: "What is the role title?"
+        },
+        {
+            type: "input",
+            name: "salary",
+            message: "What is the salary?"
+        },
+        {
+            type: "list",
+            message: "What is Department is this role under?",
+            name: "department_id",
+            choices: departmentChoices
+        }
+
+
+    ])
+    .then(answers => {
+        answers.department_id = parseInt(answers.department_id);
+        answers.salary = parseInt(answers.salary);
+
+        connection.query("INSERT role SET ?", answers, err => {
+            if(err) return console.error(err);
+            console.log("Role created.");
+
+            questions();
+        });
+    });
+}
+
+function newDepartment(){
+    
+    
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the Department name?"
+        }
+
+    ])
+    .then(answers => {
+        connection.query("INSERT department SET ?", answers, err => {
+            if(err) return console.error(err);
+            console.log("Department created.");
+
+            questions();
+        });
+    });
 }
 
 
