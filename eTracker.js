@@ -14,8 +14,7 @@ const connection = mysql.createConnection({
 });
 
 connection.connect( (err) => {
-    if(err) throw err;    
-    
+    if(err) throw err;   
     questions();
 });
 
@@ -25,7 +24,7 @@ function questions(){
         if(err) return console.error(err);
         departments = results;
     });
-    
+
     connection.query("SELECT title, id FROM role", (err, results) => {
         if(err) return console.error(err);
         roles = results;
@@ -36,7 +35,7 @@ function questions(){
             type: "list",
             message: "What would you like to do?",
             name: "choice",
-            choices: ["Update Employee", "Add User", "Add Role", "Add Department", "View Employees", "Exit"]
+            choices: ["Update Employee", "Add User", "Add Role", "Add Department", "View Employees", "View Roles", "View Departments", "Exit"]
         }
     ])
     .then( answers => {
@@ -57,7 +56,14 @@ function questions(){
         else if(choice === "View Employees"){
             viewUsers();
         }
+        else if(choice === "View Roles"){
+            viewRoles();
+        }
+        else if(choice === "View Departments"){
+            viewDepartments();
+        }
         else{
+            
             connection.end();
         }
     })
@@ -68,8 +74,6 @@ function getEmployeeList(){
         if(err) return console.error(err);
         getUpdateInfo(results);
     });
-
-    
 }
 
 function getUpdateInfo(records){
@@ -157,7 +161,25 @@ function newUser(){
 }
 
 function viewUsers(){
-    connection.query("SELECT * FROM employee", (err, results) => {
+    connection.query("SELECT e.first_name, e.last_name, r.title, d.name FROM employee as e left join role as r on e.role_id = r.id left join department as d on r.department_id = d.id", (err, results) => {
+        if(err) return console.error(err);
+        
+        console.table(results)
+        questions();
+    });
+}
+
+function viewRoles(){
+    connection.query("SELECT r.title, r.salary, d.name as department FROM role as r left join department as d on r.department_id = d.id", (err, results) => {
+        if(err) return console.error(err);
+        
+        console.table(results)
+        questions();
+    });
+}
+
+function viewDepartments(){
+    connection.query("SELECT name from department", (err, results) => {
         if(err) return console.error(err);
         
         console.table(results)
